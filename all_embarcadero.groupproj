@@ -1,0 +1,60 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{A6F3EB30-9A80-4750-B67A-F99962F76ADD}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="tools\flpdfu\flpdfu.cbproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="tools\hex2bin\hex2bin.cbproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="tools\hex2bin\hex2bin_evk.cbproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="flpdfu">
+        <MSBuild Projects="tools\flpdfu\flpdfu.cbproj"/>
+    </Target>
+    <Target Name="flpdfu:Clean">
+        <MSBuild Projects="tools\flpdfu\flpdfu.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="flpdfu:Make">
+        <MSBuild Projects="tools\flpdfu\flpdfu.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="hex2bin">
+        <MSBuild Projects="tools\hex2bin\hex2bin.cbproj"/>
+    </Target>
+    <Target Name="hex2bin:Clean">
+        <MSBuild Projects="tools\hex2bin\hex2bin.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="hex2bin:Make">
+        <MSBuild Projects="tools\hex2bin\hex2bin.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="hex2bin_evk">
+        <MSBuild Projects="tools\hex2bin\hex2bin_evk.cbproj"/>
+    </Target>
+    <Target Name="hex2bin_evk:Clean">
+        <MSBuild Projects="tools\hex2bin\hex2bin_evk.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="hex2bin_evk:Make">
+        <MSBuild Projects="tools\hex2bin\hex2bin_evk.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="flpdfu;hex2bin;hex2bin_evk"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="flpdfu:Clean;hex2bin:Clean;hex2bin_evk:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="flpdfu:Make;hex2bin:Make;hex2bin_evk:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<ProjectWorkspace xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="project_mpw.xsd">
+
+  <SchemaVersion>1.0</SchemaVersion>
+
+  <Header>### uVision Project, (C) Keil Software</Header>
+
+  <WorkspaceName>WorkSpace</WorkspaceName>
+
+  <project>
+    <PathAndName>.\flc\flc\MDK-ARM\flc.uvprojx</PathAndName>
+  </project>
+
+  <project>
+    <PathAndName>.\flc\flc_bootloader\MDK-ARM\flc_bootloader.uvprojx</PathAndName>
+  </project>
+
+  <project>
+    <PathAndName>.\flc_evk\STM32L431\MDK-ARM\STM32L431.uvprojx</PathAndName>
+  </project>
+
+  <project>
+    <PathAndName>.\flc_evk\STM32L431_bootloader\MDK-ARM\STM32L431_bootloader.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
+  </project>
+
+</ProjectWorkspace>

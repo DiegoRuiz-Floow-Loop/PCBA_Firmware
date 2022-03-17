@@ -1,0 +1,12 @@
+
+Abbrevations
+------------------------------------------------------------
+CCD, Constant current driver
+CFG, Config
+CLD, Cloud
+CMD, Command
+PTR, Pointer
+RD, Read
+SER, Serialization
+VTIM, Virtual Timer
+WR, Write
