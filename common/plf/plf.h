@@ -16,10 +16,10 @@ extern "C" {
 
 #define PLF_VENDOR_NAME       "Flow Loop"
 
-#define PLF_PRODUCT_NAME      "D6.0"
+#define PLF_PRODUCT_NAME      "F3.0"
 
 #define PLF_VERSION_MAJOR     1  
-#define PLF_VERSION_MINOR     3
+#define PLF_VERSION_MINOR     4
 
 /******************************************************************************/
 /* text */

@@ -31,16 +31,16 @@
 // input value is ready.
 #define KNOB_UPDATE_INTERVAL_MSEC     ( 150u)
 
-#define DEFAULT_POS_LIMIT_MIN_PERMIL  ( 150u)
-#define DEFAULT_POS_LIMIT_MAX_PERMIL  ( 850u)
+#define DEFAULT_POS_LIMIT_MIN_PERMIL  ( 355u)
+#define DEFAULT_POS_LIMIT_MAX_PERMIL  ( 900u)
     
-#define DEFAULT_POS_HEAD_MAX_PERMIL   ( 750u)
-#define DEFAULT_POS_HEAD_ON_PERMIL    ( 550u)
-#define DEFAULT_POS_HEAD_OFF_PERMIL   ( 530u)
+#define DEFAULT_POS_HEAD_MAX_PERMIL   ( 855u)
+#define DEFAULT_POS_HEAD_ON_PERMIL    ( 675u)
+#define DEFAULT_POS_HEAD_OFF_PERMIL   ( 665u)
                                       
-#define DEFAULT_POS_HAND_MAX_PERMIL   ( 250u)
-#define DEFAULT_POS_HAND_ON_PERMIL    ( 450u)
-#define DEFAULT_POS_HAND_OFF_PERMIL   ( 470u)
+#define DEFAULT_POS_HAND_MAX_PERMIL   ( 400u)
+#define DEFAULT_POS_HAND_ON_PERMIL    ( 580u)
+#define DEFAULT_POS_HAND_OFF_PERMIL   ( 590u)
                                   
 #define DEFAULT_POWER_MAX_PERMIL      ( 700u)
 #define DEFAULT_POWER_MIN_PERMIL      (  50u)
