@@ -9,6 +9,7 @@
 
   <project>
     <PathAndName>.\flc\flc\MDK-ARM\flc.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
   </project>
 
   <project>
@@ -21,7 +22,6 @@
 
   <project>
     <PathAndName>.\flc_evk\STM32L431_bootloader\MDK-ARM\STM32L431_bootloader.uvprojx</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
   </project>
 
 </ProjectWorkspace>

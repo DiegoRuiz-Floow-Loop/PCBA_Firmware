@@ -47,9 +47,9 @@ static const FlcComponentMapping_t CFG_TABLE[] = {
   { UV_LAMP,                      UV_LAMP_BALLAST, NO_SUBTYPE                            }, // UV_LAMP_1
        
   // APP COMPONENT                COMP. TYPE       COMP. SUBTYPE                         
-  { DELIVERY_PUMP,                PUMP,            NO_SUBTYPE                            }, // PUMP_1
+  { UNUSED_PUMP,                  PUMP,            NO_SUBTYPE                            }, // PUMP_1
   { LOOP_PUMP,                    PUMP,            NO_SUBTYPE                            }, // PUMP_2
-  { UNUSED_PUMP,                  PUMP,            NO_SUBTYPE                            }, // PUMP_3
+  { DELIVERY_PUMP,                PUMP,            NO_SUBTYPE                            }, // PUMP_3
   
   // APP COMPONENT                COMP. TYPE       COMP. SUBTYPE
   { HOT_TANK_TEMP_SENSOR,         LOG_SENSOR,      LOG_SENSOR_NTC_OHM                    }, // LOG_SENSOR_1
