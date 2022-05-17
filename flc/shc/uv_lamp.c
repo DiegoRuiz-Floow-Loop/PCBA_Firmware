@@ -32,9 +32,9 @@
 #define MAX_RETRIES (    100u)
 #define MIN_RETRIES (      1u)
 
-#define DEFAULT_T_ON_MSEC  (1000u)
+#define DEFAULT_T_ON_MSEC   (990u)
 #define DEFAULT_T_OFF_MSEC  ( 10u)
-#define DEFAULT_RETRIES  		( 15u)
+#define DEFAULT_RETRIES  		( 30u)
 
 /*******************************************************************************
  * Type definitions
