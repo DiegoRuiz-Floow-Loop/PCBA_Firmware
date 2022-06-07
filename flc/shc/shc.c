@@ -45,6 +45,11 @@ static_assert(IDLE_STARTUP_DELAY_MSEC >= 1000, "Startup should wait 1 sec for re
 #define EMPTY_AIRGAP_MSEC           (            10u * 1000u)
 #define POST_BACKWASH_MSEC          (             8u * 1000u)
 #define EMPTY_FINAL_MSEC            (            12u * 1000u)
+#define LOOP_TO_SHOWER_MSEC         (             5u * 1000u)
+#define SHOWER_TO_LOOP_MSEC         (             5u * 1000u) 
+
+
+#define MAX_HYSTERESIS_SEC          (60)
 
 #define PUMP_START                  (PUMP_FORWARD)
 #define PUMP_MAX_PERMIL             (1000u)
@@ -194,6 +199,8 @@ static ShcState_t nextState;
 static bool nextIsLocked;
 
 static uint32_t showerLoopMsec;
+
+
 
 /*******************************************************************************
  * Macros
@@ -403,8 +410,11 @@ static void StatePreBackwash(const ShcEvent_t event)
 
 static void StateShower(const ShcEvent_t event)
 {
+  static VTim_t showerToLoopHysteresisTimer;
   switch (event) {
     case ON_ENTRY:
+      //Making sure it's not expired when entering the state
+      VTimSetMsec(&showerToLoopHysteresisTimer, cfg.timingMsec[SHC_TIMING_SHOWER_TO_LOOP_HYSTERESIS]);
       // FALLTHROUGH TO ON_TICK
 
     case ON_TICK:
@@ -422,8 +432,14 @@ static void StateShower(const ShcEvent_t event)
         break;
       }
     
-      if (UvLampIsOn() && WaterIsOnFloor()) {
-        Transistion(SHC_SHOWER_LOOP);
+      if (UvLampIsOn()) {
+        if (WaterIsOnFloor()) {
+          if (VTimIsExpired(&showerToLoopHysteresisTimer)) {
+            Transistion(SHC_SHOWER_LOOP);
+          }
+        } else {
+          VTimSetMsec(&showerToLoopHysteresisTimer, cfg.timingMsec[SHC_TIMING_SHOWER_TO_LOOP_HYSTERESIS]);
+        }
       }
       break;
     
@@ -435,9 +451,12 @@ static void StateShower(const ShcEvent_t event)
 
 static void StateShowerLoop(const ShcEvent_t event)
 {
+  static VTim_t loopToShowerHysteresisTimer;
   switch (event) {
     case ON_ENTRY:
       LedRGB(LRGB_GREEN);
+      //Making sure it's not expired when entering the state
+      VTimSetMsec(&loopToShowerHysteresisTimer, cfg.timingMsec[SHC_TIMING_LOOP_TO_SHOWER_HYSTERESIS]);
       // FALLTHROUGH TO ON_TICK
     
     case ON_TICK:
@@ -457,8 +476,16 @@ static void StateShowerLoop(const ShcEvent_t event)
         break;
       }
 
-      if (!UvLampIsOn() || !WaterIsOnFloor()) {
+      if (!UvLampIsOn()) {
         Transistion(SHC_SHOWER);
+      }
+
+      if (!WaterIsOnFloor()) {
+        if (VTimIsExpired(&loopToShowerHysteresisTimer)) {
+          Transistion(SHC_SHOWER);
+        }
+      } else {
+        VTimSetMsec(&loopToShowerHysteresisTimer, cfg.timingMsec[SHC_TIMING_LOOP_TO_SHOWER_HYSTERESIS]);
       }      
       break;
 
@@ -651,14 +678,16 @@ static void ConfigSave(void)
 
 static void ConfigSetDefault(void)
 {
-  cfg.timingMsec[SHC_TIMING_IDLE_STARTUP_DELAY]    = IDLE_STARTUP_DELAY_MSEC;
-  cfg.timingMsec[SHC_TIMING_IDLE_TO_LOW_POWER]     = IDLE_TO_LOW_POWER_MSEC;
-  cfg.timingMsec[SHC_TIMING_PRE_BACKWASH]          = PRE_BACKWASH_MSEC;
-  cfg.timingMsec[SHC_TIMING_PRE_BACKWASH_REQUIRED] = PRE_BACKWASH_REQUIRED_MSEC;
-  cfg.timingMsec[SHC_TIMING_FLOW_STOP]             = FLOW_STOP_MSEC;
-  cfg.timingMsec[SHC_TIMING_EMPTY_AIRGAP]          = EMPTY_AIRGAP_MSEC;
-  cfg.timingMsec[SHC_TIMING_POST_BACKWASH]         = POST_BACKWASH_MSEC;
-  cfg.timingMsec[SHC_TIMING_EMPTY_FINAL]           = EMPTY_FINAL_MSEC;
+  cfg.timingMsec[SHC_TIMING_IDLE_STARTUP_DELAY]           = IDLE_STARTUP_DELAY_MSEC;
+  cfg.timingMsec[SHC_TIMING_IDLE_TO_LOW_POWER]            = IDLE_TO_LOW_POWER_MSEC;
+  cfg.timingMsec[SHC_TIMING_PRE_BACKWASH]                 = PRE_BACKWASH_MSEC;
+  cfg.timingMsec[SHC_TIMING_PRE_BACKWASH_REQUIRED]        = PRE_BACKWASH_REQUIRED_MSEC;
+  cfg.timingMsec[SHC_TIMING_FLOW_STOP]                    = FLOW_STOP_MSEC;
+  cfg.timingMsec[SHC_TIMING_EMPTY_AIRGAP]                 = EMPTY_AIRGAP_MSEC;
+  cfg.timingMsec[SHC_TIMING_POST_BACKWASH]                = POST_BACKWASH_MSEC;
+  cfg.timingMsec[SHC_TIMING_EMPTY_FINAL]                  = EMPTY_FINAL_MSEC;
+  cfg.timingMsec[SHC_TIMING_SHOWER_TO_LOOP_HYSTERESIS]    = SHOWER_TO_LOOP_MSEC;
+  cfg.timingMsec[SHC_TIMING_LOOP_TO_SHOWER_HYSTERESIS]    = LOOP_TO_SHOWER_MSEC;
 
   ConfigSave();
 }
@@ -670,14 +699,16 @@ static void ConfigSetDefault(void)
 #include <string.h>
 
 static const char * const TIMING_TEXTS[] = {
-  "shc idle startup delay",     // SHC_TIMING_IDLE_STARTUP_DELAY
-  "shc idle to low power",      // SHC_TIMING_IDLE_TO_LOW_POWER
-  "shc pre backwash",           // SHC_TIMING_PRE_BACKWASH
-  "shc pre backwash required",  // SHC_TIMING_PRE_BACKWASH_REQUIRED
-  "shc flow stop",              // SHC_TIMING_FLOW_STOP
-  "shc empty airgap",           // SHC_TIMING_EMPTY_AIRGAP
-  "shc post backwash",          // SHC_TIMING_POST_BACKWASH
-  "shc empty final",            // SHC_TIMING_EMPTY_FINAL
+  "shc idle startup delay",         // SHC_TIMING_IDLE_STARTUP_DELAY
+  "shc idle to low power",          // SHC_TIMING_IDLE_TO_LOW_POWER
+  "shc pre backwash",               // SHC_TIMING_PRE_BACKWASH
+  "shc pre backwash required",      // SHC_TIMING_PRE_BACKWASH_REQUIRED
+  "shc flow stop",                  // SHC_TIMING_FLOW_STOP
+  "shc empty airgap",               // SHC_TIMING_EMPTY_AIRGAP
+  "shc post backwash",              // SHC_TIMING_POST_BACKWASH
+  "shc empty final",                // SHC_TIMING_EMPTY_FINAL
+  "shc shower to loop hysteresis",  // SHC_TIMING_SHOWER_TO_LOOP_HYSTERESIS
+  "shc loop to shower hysteresis"   // SHC_TIMING_LOOP_TO_SHOWER_HYSTERESIS
 };
 static_assert(SIZEOF_ARRAY(TIMING_TEXTS) == SHC_TIMING_Last, "Wrong table row size!");
 
@@ -719,7 +750,11 @@ static int_fast16_t CliSetTiming(const CliParam_t no, CliParam_t sec, const CliP
 {
   if ((no == 0) || (no > SHC_TIMING_Last)) {
     return CLI_RESULT_ERROR_PARAMETER_VALUE;
+  } else if ((no > SHC_TIMING_EMPTY_FINAL) && (sec > MAX_HYSTERESIS_SEC)) {
+    // Hysteresis timing set to more than 60 seconds
+    return CLI_RESULT_ERROR_PARAMETER_VALUE;
   }
+  
   sec = MIN_VAL(sec, 24u * 60u * 60u);
   
   cfg.timingMsec[no - 1] = sec * 1000u;
@@ -727,6 +762,8 @@ static int_fast16_t CliSetTiming(const CliParam_t no, CliParam_t sec, const CliP
   
   return CLI_RESULT_OK;
 }
+
+
 
 CLI_START_TABLE(shc)
   CLI_ENTRY0( "show",   "Show shower controller", CliShcShowAll)
