@@ -19,7 +19,7 @@ extern "C" {
 #define PLF_PRODUCT_NAME      "F3.0"
 
 #define PLF_VERSION_MAJOR     1  
-#define PLF_VERSION_MINOR     6
+#define PLF_VERSION_MINOR     8
 
 /******************************************************************************/
 /* text */

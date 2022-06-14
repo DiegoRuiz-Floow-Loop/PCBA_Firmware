@@ -29,7 +29,7 @@
 #define POWER_STOP_DELAY_MSEC   (  0u)
 
 #define POWER_CHANGE_PERMIL     (30u)  //(160u) is standard value
-#define POWER_PERMIL_MAX        (700u)
+#define POWER_PERMIL_MAX        (600u)
 
 #define PUMP_FSM_TL     TRC_TL_3
 

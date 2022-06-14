@@ -40,7 +40,7 @@ static_assert(IDLE_STARTUP_DELAY_MSEC >= 1000, "Startup should wait 1 sec for re
 
 #define IDLE_TO_LOW_POWER_MSEC      (       5u * 60u * 1000u)
 #define PRE_BACKWASH_MSEC           (            15u * 1000u)
-#define PRE_BACKWASH_REQUIRED_MSEC  (24u * 60u * 60u * 1000u)
+#define PRE_BACKWASH_REQUIRED_MSEC  (                     0u)
 #define FLOW_STOP_MSEC              (       2u * 60u * 1000u)
 #define EMPTY_AIRGAP_MSEC           (            10u * 1000u)
 #define POST_BACKWASH_MSEC          (             8u * 1000u)

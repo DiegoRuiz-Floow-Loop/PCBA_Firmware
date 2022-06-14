@@ -34,7 +34,7 @@
 //
 // The maximum PWM duty cycle have been further decreased to 70% by John from
 // Flow Loop.
-#define POWER_PERMIL_MAX        (700u)
+#define POWER_PERMIL_MAX        (600u)
 
 #define ENABLE_DELAY_MSEC       (100u) //(100) is standard value
 #define RAMP_TICK_MSEC          ( 10u)

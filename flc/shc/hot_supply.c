@@ -316,14 +316,14 @@ static bool ActiveInShowerState(const ShcState_t state)
   switch (state) {
     case SHC_IDLE:
     case SHC_FLOW_STOP:
+		case SHC_POST_BACKWASH:
+		case SHC_EMPTY_FINAL:
       return false;
     
     case SHC_PRE_BACKWASH:
     case SHC_SHOWER:
     case SHC_SHOWER_LOOP:
-    case SHC_EMPTY_AIRGAP:
-    case SHC_POST_BACKWASH:
-    case SHC_EMPTY_FINAL:  
+		case SHC_EMPTY_AIRGAP:  
       return true;
     
     default:
