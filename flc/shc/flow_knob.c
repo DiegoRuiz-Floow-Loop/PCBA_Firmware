@@ -42,7 +42,7 @@
 #define DEFAULT_POS_HAND_ON_PERMIL    ( 540u)
 #define DEFAULT_POS_HAND_OFF_PERMIL   ( 550u)
                                   
-#define DEFAULT_POWER_MAX_PERMIL      ( 700u)
+#define DEFAULT_POWER_MAX_PERMIL      ( 600u)
 #define DEFAULT_POWER_MIN_PERMIL      ( 250u)
 
 #define KNOB_TL                       TRC_TL_3
