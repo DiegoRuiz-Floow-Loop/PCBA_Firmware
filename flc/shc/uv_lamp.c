@@ -113,11 +113,15 @@ void UvLampSet(const bool on)
 
 bool UvLampIsOn(void)
 {
-#if defined(EVK)
-  return (HAL_DIO_PIN_GET(MP_ITEM_OUT_1) == GPIO_PIN_SET);
-#else  
-  return (HAL_DIO_PIN_GET(MP_UV_ON) == GPIO_PIN_SET);
-#endif  
+#ifndef PCB_TEST
+  #if defined(EVK)
+    return (HAL_DIO_PIN_GET(MP_ITEM_OUT_1) == GPIO_PIN_SET);
+  #else  
+    return (HAL_DIO_PIN_GET(MP_UV_ON) == GPIO_PIN_SET);
+  #endif
+#else
+  return true;
+#endif
 }
 
 /*******************************************************************************

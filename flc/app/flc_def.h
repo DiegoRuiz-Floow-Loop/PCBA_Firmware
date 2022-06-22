@@ -59,6 +59,9 @@ typedef enum {
   
   FLOOR_WATER_LEVEL_SENSOR,
   UNUSED_WATER_SENSOR,
+
+  NO_USER_BUTTON1,
+  NO_USER_BUTTON2,
   
   APP_COMPONENT_Last
 } FlcAppComponent_t;
@@ -71,6 +74,7 @@ typedef enum {
   LOG_SENSOR,
   POS_SENSOR,
   WATER_SENSOR,
+  BUTTON,
   COMPONENT_TYPE_Last
 } FlcComponentType_t;
 
@@ -148,8 +152,14 @@ typedef enum {
   WATER_SENSOR_3,
 #endif  
   WATER_SENSOR_Last,
-  
-  HW_COMPONENT_Last =  WATER_SENSOR_Last
+
+  USER_BUTTON_First = WATER_SENSOR_Last,
+  USER_BUTTON_1 = USER_BUTTON_First,
+  USER_BUTTON_2,
+  USER_BUTTON_Last,
+
+
+  HW_COMPONENT_Last =  USER_BUTTON_Last
 } FlcHwComponent_t;
 
 /******************************************************************************/
@@ -196,6 +206,8 @@ typedef enum {
   SHC_TIMING_EMPTY_FINAL,
   SHC_TIMING_SHOWER_TO_LOOP_HYSTERESIS,
   SHC_TIMING_LOOP_TO_SHOWER_HYSTERESIS,
+  SHC_TIMING_SHOWER_TO_LOOP_TIMEOUT,
+  SHC_TIMING_FLOW_STOPPED_TO_LOOP_TIMEOUT,
   SHC_TIMING_Last
 } FlcShowerCtrlTiming_t;
 

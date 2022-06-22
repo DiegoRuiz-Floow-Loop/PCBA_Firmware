@@ -134,7 +134,7 @@
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
             <Capability>1</Capability>
-            <DriverSelection>4101</DriverSelection>
+            <DriverSelection>4096</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>BIN\UL2CM3.DLL</Flash2>
@@ -337,7 +337,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>-Wall -Wextra -Wno-unused-parameter -Wno-char-subscripts -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wunused -Woverloaded-virtual -Wpedantic -Wnull-dereference -Wdouble-promotion</MiscControls>
-              <Define>HAL_WDT_ENABLE,USE_RTC,PLF_OS=PLF_OS_EVOS,NVM_ACCESS=NVM_ACCESS_ADDRESS,USE_HAL_DRIVER,STM32L471xx,USE_FULL_LL_DRIVER</Define>
+              <Define>xxPCB_TEST,HAL_WDT_ENABLE,USE_RTC,PLF_OS=PLF_OS_EVOS,NVM_ACCESS=NVM_ACCESS_ADDRESS,USE_HAL_DRIVER,STM32L471xx,USE_FULL_LL_DRIVER</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\flc;                 ..\..\..\common;                 ..\..\..\common\plf\json\jansson-2.12;                 ..\..\..\common\net\modem_sim7070;                 ../Core/Inc;                 ../Drivers/STM32L4xx_HAL_Driver/Inc;                 ../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy;                 ../Drivers/CMSIS/Device/ST/STM32L4xx/Include;                 ../Drivers/CMSIS/Include</IncludePath>
             </VariousControls>
@@ -688,6 +688,16 @@
               <FileName>water_sensor.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\sup\water_sensor.h</FilePath>
+            </File>
+            <File>
+              <FileName>user_button.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\sup\user_button.c</FilePath>
+            </File>
+            <File>
+              <FileName>user_button.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\sup\user_button.h</FilePath>
             </File>
           </Files>
         </Group>

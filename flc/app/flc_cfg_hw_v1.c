@@ -73,7 +73,10 @@ static const FlcComponentMapping_t CFG_TABLE[] = {
   // APP COMPONENT                COMP. TYPE       COMP. SUBTYPE                     
   { UNUSED_WATER_SENSOR,          WATER_SENSOR,    NO_SUBTYPE                            }, // WATER_SENSOR_1 (SENSOR 16)
   { FLOOR_WATER_LEVEL_SENSOR,     WATER_SENSOR,    NO_SUBTYPE                            }, // WATER_SENSOR_2 (SENSOR 17)
-  { UNUSED_WATER_SENSOR,          WATER_SENSOR,    NO_SUBTYPE                            }, // WATER_SENSOR_3 (SENSOR 18)    
+  { UNUSED_WATER_SENSOR,          WATER_SENSOR,    NO_SUBTYPE                            }, // WATER_SENSOR_3 (SENSOR 18)
+
+  { NO_USER_BUTTON1,              BUTTON,          NO_SUBTYPE                            },
+  { NO_USER_BUTTON2,              BUTTON,          NO_SUBTYPE                            },    
 };
 static_assert(SIZEOF_ARRAY(CFG_TABLE) == HW_COMPONENT_Last, "Wrong table size!");
 

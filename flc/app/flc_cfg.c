@@ -30,9 +30,9 @@ static const FlcAppComponent_t UNUSED_APP_COMPONENTS[] = {
   UNUSED_PUMP,
   UNUSED_LOG_SENSOR,
   UNUSED_POS_SENSOR,
-  UNUSED_WATER_SENSOR
+  UNUSED_WATER_SENSOR,
 };
-static_assert(SIZEOF_ARRAY(UNUSED_APP_COMPONENTS) == COMPONENT_TYPE_Last, "UNUSED_APP_COMPONENTS unexpected size");
+static_assert(SIZEOF_ARRAY(UNUSED_APP_COMPONENTS) == COMPONENT_TYPE_Last-1, "UNUSED_APP_COMPONENTS unexpected size");
 
 /*******************************************************************************
  * Public data variables

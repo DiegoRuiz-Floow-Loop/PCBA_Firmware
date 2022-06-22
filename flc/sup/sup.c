@@ -20,6 +20,7 @@
 #include "log_sensors.h"
 #include "float_switch.h"
 #include "water_sensor.h"
+#include "user_button.h"
 
 #include "sup.h"
 
@@ -57,11 +58,12 @@ bool SUP_Init(void)
   
   AdcMuxInit();
   
-  // HW component input drivers  
+  // HW component input drivers
   if (!LogSensorsInit(flcCfg)) return false;
   if (!PosSensorInit(flcCfg)) return false;
   if (!FloatSwitchInit(flcCfg)) return false;
   if (!WaterSensorInit(flcCfg)) return false;
+  if (!UserButtonInit(flcCfg)) return false;
   
   return true;
 }

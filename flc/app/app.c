@@ -141,6 +141,7 @@ void XFloatSwitchChanged(const FlcHwComponent_t comp, const bool level)
 
 void XFlowKnobOutOfBoundsChanged(const bool isOutOfBounds)
 {
+#ifndef PCB_TEST
   TRACE_VA(TRC_TA_APP, TRC_TL_2, "XFlowKnobOutOfBoundsChanged(outOfBounds=%u)", isOutOfBounds);
   
   if (!systemInError && isOutOfBounds) {
@@ -150,6 +151,37 @@ void XFlowKnobOutOfBoundsChanged(const bool isOutOfBounds)
     TRACE(TRC_TA_APP, TRC_TL_FATAL, "System Error - Flow knob sensor position is out of bounds!");
     EVENT_LOG_ADD_S("System Error - Flow knob sensor position is out of bounds!");
     LedFlash(LED_HEARTBEAT, SYSTEM_ERROR_ON_MSEC, SYSTEM_ERROR_OFF_MSEC);
+  }
+#endif
+}
+
+void XUserButtonChanged(const FlcHwComponent_t comp, const bool level)
+{
+  TRACE_VA(TRC_TA_APP, TRC_TL_2, "XUserButtonChanged(comp=%u, level=%u)", comp, level);
+  // switch (comp) {
+  //   case 0:
+  //   {
+  //     if (level) {
+  //       LedOn(LED_BTN_1);
+  //     } else {
+  //       LedOff(LED_BTN_1);
+  //     }
+  //     break;
+  //   }
+
+  //   case 1:
+  //   {
+  //     if (level) {
+  //       LedOn(LED_BTN_2);
+  //     } else {
+  //       LedOff(LED_BTN_2);
+  //     }
+  //     break;      
+  //   }
+  // }
+
+  if (comp == 0) {
+    SetShowerLoopButton(level);
   }
 }
 
