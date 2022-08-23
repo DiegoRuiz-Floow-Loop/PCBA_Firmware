@@ -33,6 +33,7 @@ typedef enum {
   SHC_EMPTY_AIRGAP,
   SHC_POST_BACKWASH,
   SHC_EMPTY_FINAL,
+  SHC_EMERGENCY_STATE,
   SHC_STATE_Last
 } ShcState_t;
 

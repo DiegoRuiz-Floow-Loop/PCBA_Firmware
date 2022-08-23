@@ -318,6 +318,7 @@ static bool ActiveInShowerState(const ShcState_t state)
     case SHC_FLOW_STOP:
 		case SHC_POST_BACKWASH:
 		case SHC_EMPTY_FINAL:
+    case SHC_EMERGENCY_STATE:
       return false;
     
     case SHC_PRE_BACKWASH:

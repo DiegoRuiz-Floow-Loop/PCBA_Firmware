@@ -103,6 +103,7 @@ static void StateFlowStop(ShcEvent_t event);
 static void StateEmptyAirgap(ShcEvent_t event);
 static void StatePostBackwash(ShcEvent_t event);
 static void StateEmptyFinal(ShcEvent_t event);
+static void StateEmergency(ShcEvent_t event);
 
 /*******************************************************************************
  * Local constant variables
@@ -117,6 +118,7 @@ static const StateFunc_t STATE_FUNCS[] = {
   StateEmptyAirgap,       // SHC_EMPTY_AIRGAP
   StatePostBackwash,      // SHC_POST_BACKWASH
   StateEmptyFinal,        // SHC_EMPTY_FINAL
+  StateEmergency,         // SHC_EMERGENCY_STATE
 };
 static_assert(SIZEOF_ARRAY(STATE_FUNCS) == SHC_STATE_Last, "Wrong table row count!");
 
@@ -129,6 +131,7 @@ static const char * const STATE_TEXTS[] = {
   "shc empty airgap",     // SHC_EMPTY_AIRGAP
   "shc post backwash",    // SHC_POST_BACKWASH
   "shc empty final",      // SHC_EMPTY_FINAL
+  "shc emergency state",  // SHC_EMERGENCY_STATE
 };
 static_assert(SIZEOF_ARRAY(STATE_TEXTS) == SHC_STATE_Last, "Wrong table row count!");
 
@@ -148,6 +151,7 @@ static const OnEntryPower_t POWER_ON_ENTRY[][SIZEOF_ARRAY(POWER_COMPONENTS)] = {
   {{IGNORE, OFF}, {UPDATE, OFF}, {UPDATE, ON }},  // SHC_EMPTY_AIRGAP
   {{IGNORE, OFF}, {UPDATE, OFF}, {UPDATE, ON }},  // SHC_POST_BACKWASH
   {{IGNORE, OFF}, {UPDATE, OFF}, {UPDATE, OFF}},  // SHC_EMPTY_FINAL
+  {{UPDATE, OFF}, {UPDATE, OFF}, {UPDATE, OFF}}   // SHC_EMERGENCY_STATE
 };
 static_assert(SIZEOF_ARRAY(POWER_ON_ENTRY) == SHC_STATE_Last, "Wrong table row count!");
 
@@ -172,6 +176,7 @@ static const OnEntryValve_t VALVE_ON_ENTRY[][SIZEOF_ARRAY(VALVE_COMPONENTS)] = {
   {{UPDATE, OPEN },           {UPDATE, CLOSE},   {UPDATE, OPEN },       {UPDATE, OPEN },   {IGNORE, CLOSE}}, // SHC_EMPTY_AIRGAP
   {{UPDATE, OPEN },           {UPDATE, CLOSE},   {UPDATE, OPEN },       {UPDATE, OPEN },   {IGNORE, CLOSE}}, // SHC_POST_BACKWASH
   {{UPDATE, OPEN },           {UPDATE, OPEN },   {UPDATE, OPEN },       {UPDATE, OPEN },   {IGNORE, CLOSE}}, // SHC_EMPTY_FINAL
+  {{IGNORE, CLOSE},           {IGNORE, CLOSE},   {IGNORE, CLOSE},       {IGNORE, CLOSE},   {IGNORE, CLOSE}}  // SHC_EMERGENCY_STATE
 };
 static_assert(SIZEOF_ARRAY(VALVE_ON_ENTRY) == SHC_STATE_Last, "Wrong table row count!");
 
@@ -183,7 +188,8 @@ static const char * const STATE_NAMES[] = {
   "SHC_FLOW_STOP",            // SHC_FLOW_STOP
   "SHC_EMPTY_AIRGAP",         // SHC_EMPTY_AIRGAP
   "SHC_POST_BACKWASH",        // SHC_POST_BACKWASH
-  "SHC_EMPTY_FINAL"           // SHC_EMPTY_FINAL  
+  "SHC_EMPTY_FINAL",          // SHC_EMPTY_FINAL
+  "SHC_EMERGENCY_STATE"       // SHC_EMERGENCY_STATE  
 };
 static_assert(SIZEOF_ARRAY(STATE_NAMES) == SHC_STATE_Last, "Wrong table row count!");
 
@@ -655,6 +661,37 @@ static void StateEmptyFinal(const ShcEvent_t event)
   }
 }
 
+static void StateEmergency(const ShcEvent_t event)
+{
+  static uint8_t valveCounter = 0; //Counter for staggered power off of valves.
+  switch(event) {
+    case ON_ENTRY:
+    {
+      break;
+    }
+
+    case ON_TICK:
+    {
+      if (valveCounter < SIZEOF_ARRAY(VALVE_COMPONENTS))
+      {
+        SetValve(VALVE_COMPONENTS[valveCounter++], CLOSE);
+        TRACE_VA(TRC_TA_SHC, TRC_TL_2, "Turning off valve: %u", valveCounter);
+      }
+      break;
+    }
+
+    case ON_EXIT:
+    {
+      break;
+    }
+
+    default:
+    {
+      break;
+    }
+  }
+}
+
 /*******************************************************************************
  * Local functions, state machine helpers
  ******************************************************************************/
@@ -863,7 +900,7 @@ static int_fast16_t CliSetTiming(const CliParam_t no, CliParam_t sec, const CliP
 
 static int_fast16_t CliSetState(const CliParam_t no, CliParam_t sec, const CliParam_t param3)
 {
-  if (no > SHC_EMPTY_FINAL) {
+  if (no > SHC_STATE_Last) {
     return CLI_RESULT_ERROR_PARAMETER_VALUE;
   }
   Transistion((ShcState_t) no);
