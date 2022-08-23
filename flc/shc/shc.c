@@ -27,6 +27,8 @@
 #include "shc/pump.h"
 #include "shc/uv_lamp.h"
 #include "shc/valve.h"
+#include "plf/blc/blc.h"
+
 
 #include "shc.h"
 
@@ -34,28 +36,31 @@
  * Defines
  ******************************************************************************/
 
-#define TICK_MSEC                   (100u)
+#define TICK_MSEC                       (100u)
 
-#define IDLE_STARTUP_DELAY_MSEC     (             2u * 1000u)
+#define IDLE_STARTUP_DELAY_MSEC         (             2u * 1000u)
 static_assert(IDLE_STARTUP_DELAY_MSEC >= 1000, "Startup should wait 1 sec for ready drivers.");
 
-#define IDLE_TO_LOW_POWER_MSEC      (       5u * 60u * 1000u)
-#define PRE_BACKWASH_MSEC           (            15u * 1000u)
-#define PRE_BACKWASH_REQUIRED_MSEC  (                     0u)
-#define FLOW_STOP_MSEC              (       2u * 60u * 1000u)
-#define EMPTY_AIRGAP_MSEC           (            10u * 1000u)
-#define POST_BACKWASH_MSEC          (             8u * 1000u)
-#define EMPTY_FINAL_MSEC            (            12u * 1000u)
-#define LOOP_TO_SHOWER_MSEC         (             5u * 1000u)
-#define SHOWER_TO_LOOP_MSEC         (             5u * 1000u) 
-#define SHOWER_TO_LOOP_STARTUP_MSEC (            30u * 1000u)
-#define FLOW_STOPPED_TO_LOOP_MSEC   (            10u * 1000u)
+#define IDLE_TO_LOW_POWER_MSEC          (       5u * 60u * 1000u)
+#define PRE_BACKWASH_MSEC               (            15u * 1000u)
+#define PRE_BACKWASH_REQUIRED_MSEC      (                     0u)
+#define FLOW_STOP_MSEC                  (       2u * 60u * 1000u)
+#define EMPTY_AIRGAP_MSEC               (            10u * 1000u)
+#define POST_BACKWASH_MSEC              (             8u * 1000u)
+#define EMPTY_FINAL_MSEC                (            12u * 1000u)
+#define LOOP_TO_SHOWER_MSEC             (             5u * 1000u)
+#define SHOWER_TO_LOOP_MSEC             (             5u * 1000u) 
+#define SHOWER_TO_LOOP_STARTUP_MSEC     (            30u * 1000u)
+#define FLOW_STOPPED_TO_LOOP_MSEC       (            10u * 1000u)
 
 
-#define MAX_HYSTERESIS_SEC          (60)
+#define MAX_HYSTERESIS_SEC              (60)
+#define LOOP_BUTTON_RESET_TIME          (10000u)
+#define LOOP_BUTTON_REBOOT_TIME         (5000u)
 
 #define PUMP_START                  (PUMP_FORWARD)
 #define PUMP_MAX_PERMIL             (1000u)
+
 
 #define UNKNOWN_STATE_SZ            "UNKNOWN STATE!"
 
@@ -215,7 +220,8 @@ static bool nextStateIsLoop = true;
 static bool firstTimeInShower = true;
 static bool toShowerFromCleaning = false;
 
-
+static VTim_t loopButtonResetTimer;
+static bool rebootRequired = false;
 /*******************************************************************************
  * Macros
  ******************************************************************************/
@@ -226,7 +232,7 @@ static bool toShowerFromCleaning = false;
 
 // State machine
 static void EventProcess(ShcEvent_t event);
-static void Transistion(ShcState_t state);
+static void Transition(ShcState_t state);
 
 // State machine helpers
 static void EvosEvent(EvosEventParam_t param);
@@ -316,13 +322,20 @@ static void EventProcess(const ShcEvent_t event)
 {
   STATE_FUNCS[currentState](event);
 
-  // In emergency stop always overwrite any state machine transistions to idle.
+  // In emergency stop always overwrite any state machine Transitions to idle.
   if (systemInEmergencyStop) {
-    Transistion(SHC_IDLE);
+    Transition(SHC_IDLE);
+  }
+
+  if (UserButtonRead(USER_BUTTON_1) && VTimIsExpired(&loopButtonResetTimer))
+  {
+    // TRACE(TRC_TA_SHC, TRC_TL_2, "Transitioning to emergency state from button reset.");
+    rebootRequired = true;
+    Transition(SHC_EMERGENCY_STATE);
   }
   
   while (currentState != nextState) {
-    // State transistions are not allowed on exit events to avoid transistioning
+    // State Transitions are not allowed on exit events to avoid Transitioning
     // to a wrong state on programmer error/forgetfulness. 
     nextIsLocked = true;
     STATE_FUNCS[currentState](ON_EXIT);
@@ -338,7 +351,7 @@ static void EventProcess(const ShcEvent_t event)
   }
 }
 
-static void Transistion(const ShcState_t state)
+static void Transition(const ShcState_t state)
 {
   if (!nextIsLocked) {
     nextState = state;
@@ -394,11 +407,11 @@ static void StateIdle(const ShcEvent_t event)
       
       if (KnobIsAnyShowerOn()) {
         if (!lastShowerIsRecorded || VTimIsExpired(&lastShowerTimer)) {
-          Transistion(SHC_PRE_BACKWASH);
+          Transition(SHC_PRE_BACKWASH);
         } else {
           firstTimeInShower = true;
           nextStateIsLoop = true;
-          Transistion(SHC_SHOWER);
+          Transition(SHC_SHOWER);
         }
       }
       break;
@@ -423,7 +436,7 @@ static void StatePreBackwash(const ShcEvent_t event)
       if (VTimIsExpired(&stateTimer)) {
         firstTimeInShower = true;
         nextStateIsLoop = true;
-        Transistion(SHC_SHOWER);
+        Transition(SHC_SHOWER);
       }
       break;
 
@@ -464,7 +477,7 @@ static void StateShower(const ShcEvent_t event)
         SetValve(HAND_HEAD_DIVERTER_VALVE, OPEN);
         SetPump(DELIVERY_PUMP, FlowKnobGetHandPowerPermil());
       } else {
-        Transistion(SHC_FLOW_STOP);
+        Transition(SHC_FLOW_STOP);
         break;
       }
 #endif
@@ -481,7 +494,7 @@ static void StateShower(const ShcEvent_t event)
             }
           } else {
             nextStateIsLoop = true;
-            Transistion(SHC_SHOWER_LOOP);
+            Transition(SHC_SHOWER_LOOP);
           }
 
           ConsumeShowerLoopButtonEvent();
@@ -491,7 +504,7 @@ static void StateShower(const ShcEvent_t event)
           if (nextStateIsLoop && VTimIsExpired(&showerToLoopTimer)) {
             nextStateIsLoop = true;
             firstTimeInShower = false;
-            Transistion(SHC_SHOWER_LOOP);
+            Transition(SHC_SHOWER_LOOP);
           }
         }
       }
@@ -531,19 +544,19 @@ static void StateShowerLoop(const ShcEvent_t event)
         SetValve(HAND_HEAD_DIVERTER_VALVE, OPEN);
         SetPump(DELIVERY_PUMP, FlowKnobGetHandPowerPermil());     
       } else {
-        Transistion(SHC_FLOW_STOP);
+        Transition(SHC_FLOW_STOP);
         break;
       }
 #endif
       if (!(UvLampIsOn()) || GetShowerLoopButton()) {
         ConsumeShowerLoopButtonEvent();
         nextStateIsLoop = false;
-        Transistion(SHC_SHOWER);
+        Transition(SHC_SHOWER);
       }
 
       // if (!WaterIsOnFloor()) {
       //   if (VTimIsExpired(&loopToShowerHysteresisTimer)) {
-      //     Transistion(SHC_SHOWER);
+      //     Transition(SHC_SHOWER);
       //   }
       // } else {
       //   VTimSetMsec(&loopToShowerHysteresisTimer, cfg.timingMsec[SHC_TIMING_LOOP_TO_SHOWER_HYSTERESIS]);
@@ -575,9 +588,9 @@ static void StateFlowStop(const ShcEvent_t event)
     
       if (KnobIsAnyShowerOn()) {
         toShowerFromCleaning = true;
-        Transistion(SHC_SHOWER);
+        Transition(SHC_SHOWER);
       } else if (VTimIsExpired(&stateTimer)) {
-        Transistion(SHC_EMPTY_AIRGAP);
+        Transition(SHC_EMPTY_AIRGAP);
       }
       break;
 
@@ -601,9 +614,9 @@ static void StateEmptyAirgap(const ShcEvent_t event)
     case ON_TICK:
       if (KnobIsAnyShowerOn()) {
         toShowerFromCleaning = true;
-        Transistion(SHC_SHOWER);
+        Transition(SHC_SHOWER);
       } else if (VTimIsExpired(&stateTimer)) {
-        Transistion(SHC_POST_BACKWASH);
+        Transition(SHC_POST_BACKWASH);
       }
       break;
 
@@ -625,9 +638,9 @@ static void StatePostBackwash(const ShcEvent_t event)
     case ON_TICK:
       if (KnobIsAnyShowerOn()) {
         toShowerFromCleaning = true;
-        Transistion(SHC_SHOWER);
+        Transition(SHC_SHOWER);
       } if (VTimIsExpired(&stateTimer)) {
-        Transistion(SHC_EMPTY_FINAL);
+        Transition(SHC_EMPTY_FINAL);
       }
       break;
 
@@ -649,9 +662,9 @@ static void StateEmptyFinal(const ShcEvent_t event)
     case ON_TICK:
       if (KnobIsAnyShowerOn()) {
         toShowerFromCleaning = true;
-        Transistion(SHC_SHOWER);
+        Transition(SHC_SHOWER);
       } else if (VTimIsExpired(&stateTimer)) {
-        Transistion(SHC_IDLE);
+        Transition(SHC_IDLE);
       }
       break;
 
@@ -664,9 +677,17 @@ static void StateEmptyFinal(const ShcEvent_t event)
 static void StateEmergency(const ShcEvent_t event)
 {
   static uint8_t valveCounter = 0; //Counter for staggered power off of valves.
+  static VTim_t rebootTimer;
+
   switch(event) {
     case ON_ENTRY:
     {
+      if (rebootRequired)
+      {
+        VTimSetMsec(&rebootTimer, LOOP_BUTTON_REBOOT_TIME);
+        TRACE(TRC_TA_SHC, TRC_TL_2, "Rebooting in 5 seconds...");
+        LedFlash(LED_BTN_1, 100, 100);
+      }
       break;
     }
 
@@ -676,7 +697,10 @@ static void StateEmergency(const ShcEvent_t event)
       {
         SetValve(VALVE_COMPONENTS[valveCounter++], CLOSE);
         TRACE_VA(TRC_TA_SHC, TRC_TL_2, "Turning off valve: %u", valveCounter);
+      } else if (rebootRequired && VTimIsExpired(&rebootTimer)) {
+        BlcReboot();
       }
+
       break;
     }
 
@@ -772,6 +796,12 @@ static bool GetShowerLoopButton(void)
 
 void SetShowerLoopButton(bool level)
 {
+  if (level)
+  {
+    TRACE(TRC_TA_SHC, TRC_TL_2, "Starting reset timer.");
+    VTimSetMsec(&loopButtonResetTimer, LOOP_BUTTON_RESET_TIME);
+  }
+
   showerLoopButtonPressed = level;
 }
 
@@ -779,10 +809,11 @@ static void SetShowerStateLedOnEntry(void)
 {
   if (currentState == SHC_SHOWER_LOOP) {
     LedOff(LED_BTN_1);
-  } else {
+  } else if (currentState != SHC_EMERGENCY_STATE) {
     LedOn(LED_BTN_1);
   }
 }
+
 
 /*******************************************************************************
  * Local functions, configuration
@@ -903,7 +934,7 @@ static int_fast16_t CliSetState(const CliParam_t no, CliParam_t sec, const CliPa
   if (no > SHC_STATE_Last) {
     return CLI_RESULT_ERROR_PARAMETER_VALUE;
   }
-  Transistion((ShcState_t) no);
+  Transition((ShcState_t) no);
 
   return CLI_RESULT_OK;
 }

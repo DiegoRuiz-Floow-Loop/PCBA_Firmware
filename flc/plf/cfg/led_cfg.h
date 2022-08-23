@@ -32,12 +32,12 @@ extern "C" {
 typedef enum { 
   LED_First,
   LED_DEBUG_GREEN = LED_First,
-#if !defined(BOOTLOADER) && !defined(EVK)
+// #if !defined(BOOTLOADER) && !defined(EVK)
   LED_PWM_First,
   LED_BTN_1 = LED_PWM_First,
   LED_BTN_2,
   LED_SHOWER,
-#endif  
+// #endif  
 #if !defined(BOOTLOADER)  
   LED_RGB_R,
   LED_RGB_G,

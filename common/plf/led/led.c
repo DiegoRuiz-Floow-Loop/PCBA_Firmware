@@ -113,7 +113,12 @@ void LedFlash(const Led_t led, const uint_fast16_t timeOn, const uint_fast16_t t
   LedState_t * const pLed = &leds[led];
   TRACE_VA(TRC_TA_PLF, TRC_TL_4, "LedFlash(%d,%d,%d)", led, timeOn, timeOff);
   ledRunState[led]      = LR_FLASH;
-  pLed->flashIsOn       = false;
+  if (led == LED_BTN_1)
+  {
+    pLed->flashIsOn       = true;
+  } else {
+    pLed->flashIsOn       = false;
+  }
   pLed->flashTimeOn     = timeOn;
   pLed->flashTimeOff    = timeOff;
   EvosEventSetNow(pLed->event, (EvosEventParam_t)led);  
