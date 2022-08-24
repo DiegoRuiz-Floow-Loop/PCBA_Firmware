@@ -13,10 +13,12 @@
 #include "plf/trc/trc.h"
 #include "plf/evos/evos.h"
 #include "plf/nvm/nvm.h"
+#include "plf/vtim/vtim.h"
 
 #include "app/flc_cfg.h"
 
 #include "sup/pos_sensor.h"
+#include "sup/user_button.h"
 
 #include "flow_knob.h"
 
@@ -47,6 +49,8 @@
 
 #define KNOB_TL                       TRC_TL_3
 #define KNOB_TRC_POWER_CHANGE_PERMIL  (20)
+
+#define OUT_OF_BOUNDS_TIMEOUT         (1000)
 
 /*******************************************************************************
  * Type definitions
@@ -89,6 +93,11 @@ static uint16_t sensorPosPermil;
 static bool sensorIsOutOfBounds;
 
 static EvosEventHandle_t handleTimer = EVOS_UNINITIALIZED_HANDLE;
+
+static VTim_t outOfBoundsTimer;
+static VTim_t inBoundsTimer;
+static bool hasBeenOutOfBounds = false;
+static bool inBoundsAgain = false;
 
 /*******************************************************************************
  * Macros
@@ -161,8 +170,24 @@ static void SensorUpdateEvent(const EvosEventParam_t param)
   
   const bool updateIsOutOfBounds = PosIsOutOfBounds(sensorPosPermil);
   if (BOOL_NOT_EQUAL(updateIsOutOfBounds, sensorIsOutOfBounds)) {
+    TRACE(TRC_TA_APP, TRC_TL_2, "Flow knob is out of bounds?");
     sensorIsOutOfBounds = updateIsOutOfBounds;
+    VTimSetMsec(&outOfBoundsTimer, OUT_OF_BOUNDS_TIMEOUT);
+    // XFlowKnobOutOfBoundsChanged(sensorIsOutOfBounds);
+  } else if (!updateIsOutOfBounds && hasBeenOutOfBounds && !inBoundsAgain) {
+    TRACE(TRC_TA_APP, TRC_TL_2, "Flow knob is in bounds again.");
+    inBoundsAgain = true;
+    VTimSetMsec(&inBoundsTimer, OUT_OF_BOUNDS_TIMEOUT);
+  }
+
+  if (VTimIsExpired(&outOfBoundsTimer) && sensorIsOutOfBounds && !hasBeenOutOfBounds)
+  {
+    TRACE(TRC_TA_APP, TRC_TL_2, "flow knob has been out of bounds for 1 second now.");
+    hasBeenOutOfBounds = true;
     XFlowKnobOutOfBoundsChanged(sensorIsOutOfBounds);
+  } else if (VTimIsExpired(&inBoundsTimer) && hasBeenOutOfBounds && !updateIsOutOfBounds && inBoundsAgain) {
+    TRACE(TRC_TA_APP, TRC_TL_2, "Rebooting...");
+    XFlowKnobOutOfBoundsChanged(updateIsOutOfBounds);
   }
  
   KnobUpdate(&knobs[KNOB_HEAD]);
@@ -177,7 +202,11 @@ static uint16_t SensorGetPosPermil(void)
 
 static bool PosIsOutOfBounds(const uint16_t permil)
 {
+#ifndef PCB_TEST
   return ((permil < cfg.positionLimitMinPermil) || (permil > cfg.positionLimitMaxPermil));
+#else
+  return UserButtonRead(USER_BUTTON_2);
+#endif
 }
 
 static void KnobUpdate(KnobValues_t * const knob)

@@ -151,6 +151,8 @@ void XFlowKnobOutOfBoundsChanged(const bool isOutOfBounds)
     TRACE(TRC_TA_APP, TRC_TL_FATAL, "System Error - Flow knob sensor position is out of bounds!");
     EVENT_LOG_ADD_S("System Error - Flow knob sensor position is out of bounds!");
     LedFlash(LED_HEARTBEAT, SYSTEM_ERROR_ON_MSEC, SYSTEM_ERROR_OFF_MSEC);
+  } else if (systemInError && !isOutOfBounds) {
+    ShcSetEmergencyRebootEvent(); 
   }
 #endif
 }

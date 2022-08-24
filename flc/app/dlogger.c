@@ -25,7 +25,7 @@
 #include <sup/water_sensor.h>
 #include <sup/log_sensors.h>
 #include <sup/pos_sensor.h>
-
+#include "sup/user_button.h"
 #include <hal/hal.h>
 
 #include "dlogger.h"
@@ -166,6 +166,9 @@ static void FillLog(DataLog_t * const log)
         break;
       case WATER_SENSOR:
         value = WaterSensorRead(hwIdx);
+        break;
+      case BUTTON:
+        value = UserButtonRead(hwIdx);
         break;
       case COMPONENT_TYPE_Last:
       default: {

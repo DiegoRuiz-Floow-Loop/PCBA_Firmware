@@ -208,8 +208,8 @@ static EvosEventHandle_t tick = EVOS_UNINITIALIZED_HANDLE;
 
 static bool systemInEmergencyStop;
 
-static ShcState_t currentState;
-static ShcState_t nextState;
+static ShcState_t currentState = SHC_IDLE;
+static ShcState_t nextState = SHC_IDLE;
 static bool nextIsLocked;
 
 static uint32_t showerLoopMsec;
@@ -324,7 +324,7 @@ static void EventProcess(const ShcEvent_t event)
 
   // In emergency stop always overwrite any state machine Transitions to idle.
   if (systemInEmergencyStop) {
-    Transition(SHC_IDLE);
+    Transition(SHC_EMERGENCY_STATE);
   }
 
   if (UserButtonRead(USER_BUTTON_1) && VTimIsExpired(&loopButtonResetTimer))
@@ -714,7 +714,7 @@ static void StateEmergency(const ShcEvent_t event)
       break;
     }
   }
-}
+} 
 
 /*******************************************************************************
  * Local functions, state machine helpers
@@ -772,9 +772,9 @@ static bool KnobIsAnyShowerOn(void)
 #ifndef PCB_TEST  
   return (FlowKnobIsHeadOn() || FlowKnobIsHandOn());
 #else
-  bool returnVal = UserButtonRead(USER_BUTTON_2);
-  // ConsumeShowerLoopButtonEvent();
-  return returnVal;
+  // bool returnVal = UserButtonRead(USER_BUTTON_2);
+  // // ConsumeShowerLoopButtonEvent();
+  // return returnVal;
 #endif
 }
 
@@ -812,6 +812,11 @@ static void SetShowerStateLedOnEntry(void)
   } else if (currentState != SHC_EMERGENCY_STATE) {
     LedOn(LED_BTN_1);
   }
+}
+
+void ShcSetEmergencyRebootEvent(void)
+{
+  rebootRequired = true;
 }
 
 

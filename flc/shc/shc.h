@@ -53,7 +53,7 @@ void XShcStateChanged(ShcState_t state);
 void XShcShowerIsDone(void);
 void XShcLowPowerChanged(bool isLowPower);
 void SetShowerLoopButton(bool level);
-
+void ShcSetEmergencyRebootEvent(void);
 #ifdef CLI_ENABLE
 int_fast16_t CliShcShowAll(CliParam_t param1, CliParam_t param2, CliParam_t param3);
 #endif
