@@ -155,7 +155,9 @@ typedef enum {
 
   USER_BUTTON_First = WATER_SENSOR_Last,
   USER_BUTTON_1 = USER_BUTTON_First,
+#ifdef PCB_TEST
   USER_BUTTON_2,
+#endif
   USER_BUTTON_Last,
 
 

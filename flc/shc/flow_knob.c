@@ -186,7 +186,6 @@ static void SensorUpdateEvent(const EvosEventParam_t param)
     hasBeenOutOfBounds = true;
     XFlowKnobOutOfBoundsChanged(sensorIsOutOfBounds);
   } else if (VTimIsExpired(&inBoundsTimer) && hasBeenOutOfBounds && !updateIsOutOfBounds && inBoundsAgain) {
-    TRACE(TRC_TA_APP, TRC_TL_2, "Rebooting...");
     XFlowKnobOutOfBoundsChanged(updateIsOutOfBounds);
   }
  

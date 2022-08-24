@@ -141,7 +141,6 @@ void XFloatSwitchChanged(const FlcHwComponent_t comp, const bool level)
 
 void XFlowKnobOutOfBoundsChanged(const bool isOutOfBounds)
 {
-#ifndef PCB_TEST
   TRACE_VA(TRC_TA_APP, TRC_TL_2, "XFlowKnobOutOfBoundsChanged(outOfBounds=%u)", isOutOfBounds);
   
   if (!systemInError && isOutOfBounds) {
@@ -154,7 +153,6 @@ void XFlowKnobOutOfBoundsChanged(const bool isOutOfBounds)
   } else if (systemInError && !isOutOfBounds) {
     ShcSetEmergencyRebootEvent(); 
   }
-#endif
 }
 
 void XUserButtonChanged(const FlcHwComponent_t comp, const bool level)

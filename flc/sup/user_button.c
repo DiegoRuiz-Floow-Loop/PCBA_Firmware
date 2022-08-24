@@ -43,7 +43,9 @@ static const McuPin_t USER_BUTTONS[] = {
   // MP_BTN_1_NC,
   // MP_BTN_2_NC,
   MP_BTN_1_NO,
+#ifdef PCB_TEST
   MP_BTN_2_NO,
+#endif
 #endif
 };
 static_assert(SIZEOF_ARRAY(USER_BUTTONS) == (HW_COUNT), "USER_BUTTONS unexpected size");
