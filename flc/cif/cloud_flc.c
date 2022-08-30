@@ -473,7 +473,7 @@ static void StateMqttUpload(const CifEvent_t event)
       root = json_object();      
       DLogToJson(&entry, root);
       jsonBody = json_dumps(root, JSON_INDENT(2));
-      
+      json_decref(root);
       const UtcTime_t sessionId = RtcToUtcTime(&entry.log.data.sessionId);
       MqttTopicMake(topic, sizeof(topic), mqttClientId, "RAW", sessionId);
       
@@ -843,6 +843,7 @@ static void DLogToJson(const DLogEntry_t * const logEntry, json_t * const root)
   }
   
   json_object_set_new(root, "values", valueArray);
+  json_decref(valueArray);
 }
 
 static void MqttTopicMake(char * const buffer, const uint8_t size, const char * const deviceId, const char * const dataType, const UtcTime_t sessionId)
@@ -871,6 +872,7 @@ static int_fast16_t CliShowJson(const CliParam_t param1, const CliParam_t param2
   
   char * str = json_dumps(root, JSON_INDENT(2));  
   CliPrintf("%s\n", str);
+  json_decref(root);
   
   HeapxClean(); // HeapX does not implement freeing on EvOS and only Jansson uses HeapX - Clean entire heap.
   return CLI_RESULT_OK;
