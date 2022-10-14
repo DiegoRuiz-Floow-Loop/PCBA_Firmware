@@ -24,8 +24,8 @@ extern SPI_HandleTypeDef hspi1;
 #if defined(EVK) 
 #define DFLASH_SIZE_MBIT		DFLASH_32MBIT
 #else
-//#define DFLASH_SIZE_MBIT		DFLASH_128MBIT  // adesto,  AT25SF128 PCBA no. 180122-xxxx
-#define DFLASH_SIZE_MBIT		DFLASH_512MBIT  // Micron,  MT25QL512AB PCBA no. 031221-xxxx
+#define DFLASH_SIZE_MBIT		DFLASH_128MBIT  // adesto,  AT25SF128 PCBA no. 180122-xxxx
+//#define DFLASH_SIZE_MBIT		DFLASH_512MBIT  // Micron,  MT25QL512AB PCBA no. 031221-xxxx
 #endif
 
 #include "hal/dflash/dflash_def.h"
