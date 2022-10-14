@@ -16,7 +16,7 @@ extern "C" {
 
 #define PLF_VENDOR_NAME       "Flow Loop"
 
-#define PLF_PRODUCT_NAME      "F3.0 PCBA:031221-xxxx"
+#define PLF_PRODUCT_NAME      "F3.0 PCBA:180122-xxxx"
 
 #define PLF_VERSION_MAJOR     2  
 #define PLF_VERSION_MINOR     3
