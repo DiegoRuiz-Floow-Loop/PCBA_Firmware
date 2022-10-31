@@ -44,7 +44,7 @@ static_assert(IDLE_STARTUP_DELAY_MSEC >= 1000, "Startup should wait 1 sec for re
 #define IDLE_TO_LOW_POWER_MSEC          (       5u * 60u * 1000u)
 #define PRE_BACKWASH_MSEC               (            15u * 1000u)
 #define PRE_BACKWASH_REQUIRED_MSEC      (                     0u)
-#define FLOW_STOP_MSEC                  (       2u * 60u * 1000u)
+#define FLOW_STOP_MSEC                  (       2u * 60u * 1000u) // 30u * 1000u) used for FAIR-F4-SN53 and SN54
 #define EMPTY_AIRGAP_MSEC               (            10u * 1000u)
 #define POST_BACKWASH_MSEC              (             8u * 1000u)
 #define EMPTY_FINAL_MSEC                (            12u * 1000u)
@@ -172,6 +172,7 @@ static const FlcAppComponent_t VALVE_COMPONENTS[] = {
 };
 
 static const OnEntryValve_t VALVE_ON_ENTRY[][SIZEOF_ARRAY(VALVE_COMPONENTS)] = {
+
   //HAND_HEAD_DIVERTER_VALVE  DRAIN_HEAD_VALVE   DRAIN_DELIVERY_VALVE   DRAIN_LOOP_VALVE   EXTERNAL_RELAY_VALVE
   {{UPDATE, OPEN },           {UPDATE, OPEN },   {UPDATE, OPEN },       {UPDATE, OPEN },   {UPDATE, OPEN}},  // SHC_IDLE
   {{UPDATE, OPEN },           {UPDATE, CLOSE},   {UPDATE, OPEN },       {UPDATE, OPEN },   {UPDATE, CLOSE}}, // SHC_PRE_BACKWASH 
@@ -182,7 +183,25 @@ static const OnEntryValve_t VALVE_ON_ENTRY[][SIZEOF_ARRAY(VALVE_COMPONENTS)] = {
   {{UPDATE, OPEN },           {UPDATE, CLOSE},   {UPDATE, OPEN },       {UPDATE, OPEN },   {IGNORE, CLOSE}}, // SHC_POST_BACKWASH
   {{UPDATE, OPEN },           {UPDATE, OPEN },   {UPDATE, OPEN },       {UPDATE, OPEN },   {IGNORE, CLOSE}}, // SHC_EMPTY_FINAL
   {{IGNORE, CLOSE},           {IGNORE, CLOSE},   {IGNORE, CLOSE},       {IGNORE, CLOSE},   {IGNORE, CLOSE}}  // SHC_EMERGENCY_STATE
+
+
+/*
+// Used for FAIR-F4 SN53 and SN54:
+  //HAND_HEAD_DIVERTER_VALVE  DRAIN_HEAD_VALVE   DRAIN_DELIVERY_VALVE   DRAIN_LOOP_VALVE   EXTERNAL_RELAY_VALVE
+  {{UPDATE, OPEN },           {UPDATE, OPEN },   {UPDATE, OPEN },       {UPDATE, OPEN },   {UPDATE, OPEN}},  // SHC_IDLE
+  {{UPDATE, OPEN },           {UPDATE, CLOSE},   {UPDATE, OPEN },       {UPDATE, OPEN },   {UPDATE, CLOSE}}, // SHC_PRE_BACKWASH 
+  {{IGNORE, CLOSE},           {UPDATE, OPEN },   {UPDATE, CLOSE},       {UPDATE, CLOSE},   {UPDATE, CLOSE}}, // SHC_SHOWER
+  {{IGNORE, CLOSE},           {UPDATE, OPEN },   {UPDATE, CLOSE},       {UPDATE, CLOSE},   {UPDATE, CLOSE}}, // SHC_SHOWER_LOOP
+  {{UPDATE, OPEN},           {UPDATE, CLOSE },   {UPDATE, CLOSE},       {UPDATE, CLOSE},   {IGNORE, CLOSE}}, // SHC_FLOW_STOP
+  {{UPDATE, OPEN },           {UPDATE, CLOSE},   {UPDATE, OPEN },       {UPDATE, OPEN },   {IGNORE, CLOSE}}, // SHC_EMPTY_AIRGAP
+  {{UPDATE, OPEN },           {UPDATE, CLOSE},   {UPDATE, OPEN },       {UPDATE, OPEN },   {IGNORE, CLOSE}}, // SHC_POST_BACKWASH
+  {{UPDATE, OPEN },           {UPDATE, OPEN },   {UPDATE, OPEN },       {UPDATE, OPEN },   {IGNORE, CLOSE}}, // SHC_EMPTY_FINAL
+  {{IGNORE, CLOSE},           {IGNORE, CLOSE},   {IGNORE, CLOSE},       {IGNORE, CLOSE},   {IGNORE, CLOSE}}  // SHC_EMERGENCY_STATE
+*/
 };
+
+
+
 static_assert(SIZEOF_ARRAY(VALVE_ON_ENTRY) == SHC_STATE_Last, "Wrong table row count!");
 
 static const char * const STATE_NAMES[] = {
